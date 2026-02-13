@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pre nego što legneš ❤️</title>
+
+<style>
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    color:#fff;
+    min-height:100vh;
+    overflow-x:hidden;
+    background:#0b0b10;
+  }
+
+  .hidden{ display:none !important; }
+
+  /* Background (blurovano) */
+  .bg{
+    position:fixed;
+    inset:0;
+    background-image:url("./photo.jpg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    filter:brightness(0.95) blur(6px);
+    transform:scale(1.03);
+  }
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.20);
+  }
+
+  .wrap{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 18px;
+  }
+
+  .card{
+    width:min(760px,100%);
+    background:rgba(0,0,0,0.22);
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:22px;
+    padding:22px;
+    text-align:center;
+  }
+
+  h1{
+    margin:0 0 10px;
+    font-size:22px;
+    letter-spacing:0.2px;
+  }
+
+  .text{
+    margin: 10px auto 0;
+    text-align:left;
+    line-height:1.55;
+    font-size:16px;
+    opacity:.95;
+    white-space:pre-wrap;
+  }
+
+  video{
+    width:100%;
+    border-radius:18px;
+    margin-top:14px;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(0,0,0,0.25);
+  }
+
+  .actions{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+
+  button{
+    border:none;
+    cursor:pointer;
+    border-radius:999px;
+    padding:12px 16px;
+    font-weight:800;
+    font-size:16px;
+  }
+
+  .btn-primary{
+    background:#fff;
+    color:#000;
+  }
+
+  .btn-ghost{
+    background:transparent;
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.5);
+  }
+
+  /* UNLOCK SCREEN */
+  .start{
+    position:fixed;
+    inset:0;
+    display:grid;
+    place-items:center;
+    background:#0b0b10;
+    z-index:10;
+    padding:18px;
+  }
+
+  .start .box{
+    width:min(640px,100%);
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:20px;
+    padding:18px;
+    text-align:center;
+  }
+
+  .start p{
+    margin:0 0 12px;
+    opacity:.92;
+    line-height:1.45;
+    font-size:15px;
+  }
+
+  .question{
+    margin:10px 0 12px;
+    font-size:15px;
+    line-height:1.45;
+    opacity:.95;
+  }
+
+  input[type="text"]{
+    width:min(340px, 92vw);
+    padding:10px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.22);
+    background:rgba(0,0,0,0.25);
+    color:#fff;
+    outline:none;
+    font-size:16px;
+    text-align:center;
+  }
+
+  input::placeholder{ color:rgba(255,255,255,0.55); }
+
+  .err{
+    margin-top:10px;
+    font-size:13px;
+    color:rgba(255,170,170,0.95);
+    display:none;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- sakriveno dok se ne otključa -->
+<div class="bg hidden" id="bg"></div>
+<div class="overlay hidden" id="ov"></div>
+
+<audio id="audio" loop preload="auto">
+  <source src="./song.mp3" type="audio/mpeg"/>
+</audio>
+
+<!-- UNLOCK -->
+<div class="start" id="start">
+  <div class="box">
+    <h1>Samo jedna osoba zna odgovor… ❤️</h1>
+    <p>Ako si to ti — odgovori.</p>
+
+    <div class="question">
+      Najlepsi pogled sa terase na krovu ispred nas more a pored mene najlepsa devojka na svetu je bio u
+    </div>
+
+    <input id="answer" type="text" placeholder="upiši odgovor…" autocomplete="off" />
+
+    <div style="margin-top:14px;">
+      <button class="btn-primary" id="unlockBtn">Otkrij poruku 🔓</button>
+    </div>
+
+    <div class="err" id="err">Nije to 🙂 probaj opet.</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="wrap hidden" id="wrap">
+  <div class="card">
+    <h1>❤️</h1>
+
+    <!-- PRAZAN TEKST (ti ćeš upisati kasnije) -->
+    <div class="text" id="message">
+      
+    </div>
+
+    <!-- VIDEO -->
+    <video id="vid" controls playsinline>
+      <source src="./video.mp4" type="video/mp4" />
+    </video>
+
+    <div class="actions">
+      <button class="btn-primary" id="playPause">Pauza</button>
+      <button class="btn-ghost" id="restart">Ponovo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const audio = document.getElementById('audio');
+
+  const start = document.getElementById('start');
+  const err = document.getElementById('err');
+  const answer = document.getElementById('answer');
+  const unlockBtn = document.getElementById('unlockBtn');
+
+  const bg = document.getElementById('bg');
+  const ov = document.getElementById('ov');
+  const wrap = document.getElementById('wrap');
+
+  const playPause = document.getElementById('playPause');
+  const restart = document.getElementById('restart');
+
+  function norm(s){
+    return (s || '')
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g,' ');
+  }
+
+  async function unlock(){
+    const v = norm(answer.value);
+
+    // tačan odgovor: "Kotoru" (case-insensitive)
+    if(v !== 'kotoru'){
+      err.style.display = 'block';
+      start.animate(
+        [{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],
+        {duration:220}
+      );
+      return;
+    }
+
+    err.style.display = 'none';
+
+    // prikaži pozadinu + sadržaj
+    bg.classList.remove('hidden');
+    ov.classList.remove('hidden');
+    wrap.classList.remove('hidden');
+
+    // sakrij unlock
+    start.style.display = 'none';
+
+    // pusti pesmu (dozvoljeno jer je klik)
+    try { await audio.play(); } catch(e) {}
+    playPause.textContent = 'Pauza';
+  }
+
+  unlockBtn.addEventListener('click', unlock);
+
+  answer.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') unlock();
+  });
+
+  // Controls
+  playPause.addEventListener('click', async () => {
+    if(audio.paused){
+      try { await audio.play(); } catch(e) {}
+      playPause.textContent = 'Pauza';
+    } else {
+      audio.pause();
+      playPause.textContent = 'Pusti';
+    }
+  });
+
+  restart.addEventListener('click', async () => {
+    audio.currentTime = 0;
+    try { await audio.play(); } catch(e) {}
+    playPause.textContent = 'Pauza';
+  });
+</script>
+
+</body>
+</html>
