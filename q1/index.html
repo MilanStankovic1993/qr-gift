@@ -12,7 +12,11 @@ body{
   color:#fff;
   min-height:100vh;
   overflow-x:hidden;
+  background:#0b0b10;
 }
+
+/* SVE JE SAKRIVENO DOK SE NE OTKLJUČA */
+.hidden { display:none !important; }
 
 /* Background photo */
 .bg{
@@ -41,7 +45,6 @@ body{
   padding:28px 18px;
 }
 
-/* Transparent card */
 .card{
   width:min(720px,100%);
   background:rgba(0,0,0,0.18);
@@ -110,112 +113,99 @@ button{
   border:1px solid rgba(255,255,255,0.5);
 }
 
-/* UNLOCK SCREEN */
+/* UNLOCK SCREEN (jedino što se vidi na startu) */
 .start{
   position:fixed;
   inset:0;
   display:grid;
   place-items:center;
-  background:rgba(0,0,0,0.35);
+  background:#0b0b10; /* potpuno zatvoreno */
   z-index:10;
   padding:18px;
 }
 
 .start .box{
   width:min(560px,100%);
-  background:rgba(0,0,0,0.25);
-  border:1px solid rgba(255,255,255,0.22);
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.18);
   border-radius:20px;
   padding:18px;
-  text-align:left;
+  text-align:center;
 }
 
 .start h2{
-  margin:0 0 8px;
+  margin:0 0 10px;
   font-size:20px;
-  text-align:center;
 }
 
 .start p{
-  margin:0 0 12px;
-  opacity:.95;
+  margin:0 0 14px;
+  opacity:.9;
   line-height:1.45;
-  text-align:center;
-}
-
-.formline{
-  margin-top:12px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-}
-
-.formline span{
-  opacity:.95;
   font-size:15px;
 }
 
+.formline{
+  margin-top:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+}
+
+.formline .label{
+  opacity:.9;
+  font-size:14px;
+}
+
 input[type="text"]{
-  width:min(220px, 80vw);
+  width:min(240px, 86vw);
   padding:10px 12px;
   border-radius:14px;
-  border:1px solid rgba(255,255,255,0.25);
+  border:1px solid rgba(255,255,255,0.22);
   background:rgba(0,0,0,0.25);
   color:#fff;
   outline:none;
   font-size:16px;
+  text-align:center;
 }
 
-input::placeholder{
-  color:rgba(255,255,255,0.55);
-}
+input::placeholder{ color:rgba(255,255,255,0.55); }
 
 .err{
   margin-top:10px;
   font-size:13px;
-  text-align:center;
-  color:rgba(255,180,180,0.95);
+  color:rgba(255,170,170,0.95);
   display:none;
-}
-
-.hint{
-  margin-top:10px;
-  font-size:12px;
-  text-align:center;
-  opacity:.7;
-}
-
-.hidden{
-  display:none !important;
 }
 </style>
 </head>
 
 <body>
-<div class="bg"></div>
-<div class="overlay"></div>
+
+<!-- POZADINA I SADRŽAJ SU SAKRIVENI DOK SE NE OTKLJUČA -->
+<div class="bg hidden" id="bg"></div>
+<div class="overlay hidden" id="ov"></div>
 
 <audio id="audio" loop preload="auto">
   <source src="./song.mp3" type="audio/mpeg"/>
 </audio>
 
-<!-- UNLOCK -->
+<!-- UNLOCK (jedino vidljivo) -->
 <div class="start" id="start">
   <div class="box">
     <h2>Ako znaš odgovor… ❤️</h2>
     <p>onda si ti jedina osoba koja treba da vidi poruku.</p>
 
     <div class="formline">
-      <span>Ona kaže:</span>
-      <input id="a1" type="text" placeholder="(upiši ovde)" autocomplete="off" />
+      <div class="label">Ne ne,</div>
+      <input id="a1" type="text" placeholder="upiši 1. reč" autocomplete="off" />
     </div>
 
     <div class="formline">
-      <span>Ja kažem: Ne ne, hvala tebi što</span>
-      <input id="a2" type="text" placeholder="(upiši ovde)" autocomplete="off" />
+      <div class="label">tebi što</div>
+      <input id="a2" type="text" placeholder="upiši 2. reč" autocomplete="off" />
     </div>
 
     <div class="formline" style="margin-top:14px;">
@@ -223,14 +213,14 @@ input::placeholder{
     </div>
 
     <div class="err" id="err">Nije to 🙂 probaj opet.</div>
-    <div class="hint">Mali hint: dve kratke reči koje često kažeš.</div>
   </div>
 </div>
 
-<div class="wrap">
-  <div class="card" id="content" aria-hidden="true">
+<!-- CONTENT (sakriven) -->
+<div class="wrap hidden" id="wrap">
+  <div class="card">
     <div class="chat">
-      <div class="bubble me">Lepotoooo… danas si bila najlepsaa</div>
+      <div class="bubble me">Lepotoooo… danas si bila najboljа ❤️</div>
       <div class="bubble her">Hvalaaa</div>
 
       <div class="bubble me">Ne ne hvala tebi sto postojis</div>
@@ -259,50 +249,51 @@ input::placeholder{
 <script>
 const audio = document.getElementById('audio');
 
-const start   = document.getElementById('start');
+const start = document.getElementById('start');
+const err = document.getElementById('err');
 const unlockBtn = document.getElementById('unlockBtn');
-const err     = document.getElementById('err');
-
 const a1 = document.getElementById('a1');
 const a2 = document.getElementById('a2');
 
+const bg = document.getElementById('bg');
+const ov = document.getElementById('ov');
+const wrap = document.getElementById('wrap');
+
 const playPause = document.getElementById('playPause');
-const restart   = document.getElementById('restart');
+const restart = document.getElementById('restart');
 
 function norm(s){
-  return (s || '')
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g,' ');
+  return (s || '').toString().trim().toLowerCase().replace(/\s+/g,' ');
 }
 
 async function unlock(){
   const v1 = norm(a1.value);
   const v2 = norm(a2.value);
 
-  const ok1 = (v1 === 'hvala');
-  const ok2 = (v2 === 'postojis');
-
-  if(!ok1 || !ok2){
+  if(v1 !== 'hvala' || v2 !== 'postojis'){
     err.style.display = 'block';
-    // mali shake efekat bez CSS komplikacije
     start.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}], {duration:220});
     return;
   }
 
   err.style.display = 'none';
+
+  // prikaži pozadinu + sadržaj
+  bg.classList.remove('hidden');
+  ov.classList.remove('hidden');
+  wrap.classList.remove('hidden');
+
+  // sakrij unlock screen
   start.style.display = 'none';
 
-  // krene pesma (biće dozvoljeno jer je user kliknuo)
-  try { await audio.play(); } catch (e) {}
+  // pusti pesmu (dozvoljeno jer je klik)
+  try { await audio.play(); } catch(e) {}
 
   playPause.textContent = 'Pauza';
 }
 
 unlockBtn.addEventListener('click', unlock);
 
-// Enter key support
 [a1, a2].forEach(el => {
   el.addEventListener('keydown', (e) => {
     if(e.key === 'Enter') unlock();
