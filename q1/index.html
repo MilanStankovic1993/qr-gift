@@ -1,1 +1,207 @@
+<!doctype html>
+<html lang="sr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kad ti bude teško ❤️</title>
+  <style>
+    :root { --pad: 22px; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      background: #0b0b10;
+      overflow-x: hidden;
+    }
 
+    /* Background photo */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background-image: url("./photo.jpg");
+      background-size: cover;
+      background-position: center;
+      filter: blur(2px) brightness(0.65);
+      transform: scale(1.05);
+    }
+
+    /* dark overlay for readability */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.10), transparent 45%),
+                  linear-gradient(180deg, rgba(0,0,0,0.20), rgba(0,0,0,0.65));
+    }
+
+    .wrap {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 18px;
+    }
+
+    .card {
+      width: min(720px, 100%);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+      padding: var(--pad);
+      backdrop-filter: blur(6px);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 26px;
+      letter-spacing: 0.2px;
+    }
+
+    .msg {
+      font-size: 18px;
+      line-height: 1.55;
+      margin: 10px 0 18px;
+      opacity: 0.98;
+    }
+
+    .strong {
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #0b0b10;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.30);
+    }
+
+    .hint {
+      margin-top: 14px;
+      font-size: 13px;
+      opacity: 0.75;
+    }
+
+    /* Start overlay (for reliable audio start on mobile) */
+    .start {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,0.65);
+      z-index: 10;
+      padding: 24px;
+      text-align: center;
+    }
+    .start .box {
+      width: min(520px, 100%);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 22px;
+      padding: 22px;
+      backdrop-filter: blur(6px);
+    }
+    .start h2 { margin: 0 0 8px; font-size: 22px; }
+    .start p  { margin: 0 0 16px; opacity: 0.9; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="overlay"></div>
+
+  <!-- Autoplay is usually blocked; we start audio after a user click -->
+  <audio id="audio" loop preload="auto">
+    <source src="./song.mp3" type="audio/mpeg" />
+  </audio>
+
+  <div class="start" id="start">
+    <div class="box">
+      <h2>Za tebe ❤️</h2>
+      <p>Kad ti je teško — samo udahni.<br>Ja sam tu. Uvek.</p>
+      <button class="btn-primary" id="startBtn">Pusti pesmu 🎵</button>
+      <div class="hint">Ako ti ne krene zvuk, pojačaj ton na telefonu.</div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h1>Kad ti bude teško…</h1>
+
+      <div class="msg">
+        <span class="strong">Uvek budi sigurna</span> u jedno:
+        <br>
+        <span class="strong">ja te volim najviše.</span>
+        <br><br>
+        Ne moraš ništa da dokazuješ.
+        Samo budi tu. Ja sam tvoja mirna luka. ❤️
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="playPause">Pauza</button>
+        <button class="btn-ghost" id="restart">Ponovo</button>
+      </div>
+
+      <div class="hint">Ovo je tvoja poruka. Sa majice. Za dane kad treba malo snage.</div>
+    </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById('audio');
+    const start = document.getElementById('start');
+    const startBtn = document.getElementById('startBtn');
+    const playPause = document.getElementById('playPause');
+    const restart = document.getElementById('restart');
+
+    async function safePlay() {
+      try {
+        await audio.play();
+        playPause.textContent = 'Pauza';
+        start.style.display = 'none';
+      } catch (e) {
+        // If blocked, keep overlay visible
+        console.log('Audio play blocked:', e);
+      }
+    }
+
+    startBtn.addEventListener('click', safePlay);
+
+    playPause.addEventListener('click', async () => {
+      if (audio.paused) {
+        await safePlay();
+      } else {
+        audio.pause();
+        playPause.textContent = 'Pusti';
+      }
+    });
+
+    restart.addEventListener('click', async () => {
+      audio.currentTime = 0;
+      await safePlay();
+    });
+  </script>
+</body>
+</html>
