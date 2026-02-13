@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kad ti bude teško ❤️</title>
+  <title>Lepoto znas ko te voli najvise na svetu ❤️</title>
+
   <style>
     :root { --pad: 22px; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -21,17 +23,19 @@
       inset: 0;
       background-image: url("./photo.jpg");
       background-size: cover;
-      background-position: center;
-      filter: blur(2px) brightness(0.65);
-      transform: scale(1.05);
+      background-position: center center;
+      background-repeat: no-repeat;
+      filter: brightness(0.9);
+      transform: translateZ(0);
     }
 
     /* dark overlay for readability */
     .overlay {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.10), transparent 45%),
-                  linear-gradient(180deg, rgba(0,0,0,0.20), rgba(0,0,0,0.65));
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.12), transparent 45%),
+        linear-gradient(180deg, rgba(0,0,0,0.10), rgba(0,0,0,0.45));
     }
 
     .wrap {
@@ -45,7 +49,7 @@
 
     .card {
       width: min(720px, 100%);
-      background: rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.30);
       border: 1px solid rgba(255,255,255,0.16);
       border-radius: 22px;
       box-shadow: 0 18px 60px rgba(0,0,0,0.45);
@@ -55,20 +59,42 @@
     }
 
     h1 {
-      margin: 0 0 10px;
-      font-size: 26px;
+      margin: 0 0 14px;
+      font-size: 24px;
       letter-spacing: 0.2px;
     }
 
-    .msg {
-      font-size: 18px;
-      line-height: 1.55;
-      margin: 10px 0 18px;
-      opacity: 0.98;
+    .chat {
+      margin: 10px auto 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
     }
 
-    .strong {
-      font-weight: 700;
+    .bubble {
+      max-width: 88%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      font-size: 16px;
+      line-height: 1.4;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      word-wrap: break-word;
+    }
+
+    .bubble.me {
+      align-self: flex-end;
+      background: rgba(255,255,255,0.92);
+      color: #0b0b10;
+      border-bottom-right-radius: 6px;
+    }
+
+    .bubble.her {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-bottom-left-radius: 6px;
     }
 
     .actions {
@@ -112,23 +138,35 @@
       inset: 0;
       display: grid;
       place-items: center;
-      background: rgba(0,0,0,0.65);
+      background: rgba(0,0,0,0.55);
       z-index: 10;
       padding: 24px;
       text-align: center;
     }
+
     .start .box {
       width: min(520px, 100%);
-      background: rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.35);
       border: 1px solid rgba(255,255,255,0.18);
       border-radius: 22px;
       padding: 22px;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
     }
-    .start h2 { margin: 0 0 8px; font-size: 22px; }
-    .start p  { margin: 0 0 16px; opacity: 0.9; line-height: 1.5; }
+
+    .start h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .start p {
+      margin: 0 0 16px;
+      opacity: 0.92;
+      line-height: 1.5;
+      font-size: 16px;
+    }
   </style>
 </head>
+
 <body>
   <div class="bg"></div>
   <div class="overlay"></div>
@@ -141,7 +179,7 @@
   <div class="start" id="start">
     <div class="box">
       <h2>Za tebe ❤️</h2>
-      <p>Kad ti je teško — samo udahni.<br>Ja sam tu. Uvek.</p>
+      <p>Klikni da krene pesma…</p>
       <button class="btn-primary" id="startBtn">Pusti pesmu 🎵</button>
       <div class="hint">Ako ti ne krene zvuk, pojačaj ton na telefonu.</div>
     </div>
@@ -149,15 +187,24 @@
 
   <div class="wrap">
     <div class="card">
-      <h1>Kad ti bude teško…</h1>
+      <h1>Lepoto… znaš ko te voli najviše na svetu ❤️</h1>
 
-      <div class="msg">
-        <span class="strong">Uvek budi sigurna</span> u jedno:
-        <br>
-        <span class="strong">ja te volim najviše.</span>
-        <br><br>
-        Ne moraš ništa da dokazuješ.
-        Samo budi tu. Ja sam tvoja mirna luka. ❤️
+      <div class="chat">
+        <div class="bubble her">Hvala</div>
+
+        <div class="bubble me">Ne ne hvala tebi sto postojis</div>
+        <div class="bubble her">😊</div>
+
+        <div class="bubble me">Lepotooo</div>
+        <div class="bubble me">Odo da legnem gotov sam</div>
+
+        <div class="bubble her">Lav ju ❤️</div>
+
+        <div class="bubble me">Laku noc ❤️</div>
+        <div class="bubble me">Moja i ja tebe najvise</div>
+
+        <div class="bubble me">Laku nocccc</div>
+        <div class="bubble me">❤️❤️❤️</div>
       </div>
 
       <div class="actions">
@@ -165,7 +212,7 @@
         <button class="btn-ghost" id="restart">Ponovo</button>
       </div>
 
-      <div class="hint">Ovo je tvoja poruka. Sa majice. Za dane kad treba malo snage.</div>
+      <div class="hint">Kad ti zatreba mir — samo skeniraj.</div>
     </div>
   </div>
 
@@ -182,7 +229,6 @@
         playPause.textContent = 'Pauza';
         start.style.display = 'none';
       } catch (e) {
-        // If blocked, keep overlay visible
         console.log('Audio play blocked:', e);
       }
     }
