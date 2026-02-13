@@ -26,7 +26,7 @@
     background-position:center;
     background-repeat:no-repeat;
     filter:brightness(0.92) blur(6px);
-    transform:none; /* bez zoom */
+    transform:none;
     z-index:0;
   }
 
@@ -141,20 +141,30 @@
 
   .textCard{
     width:min(860px,100%);
-    background:rgba(0,0,0,0.25);
+    background:rgba(0,0,0,0.28);
     border:1px solid rgba(255,255,255,0.22);
     border-radius:22px;
     padding:18px;
     text-align:left;
-    line-height:1.6;
+    line-height:1.65;
     font-size:16px;
     white-space:pre-wrap;
   }
 
+  /* typewriter caret */
+  .caret{
+    display:inline-block;
+    width:10px;
+    margin-left:2px;
+    opacity:.9;
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
   .hint{
     margin-top:10px;
     text-align:center;
-    opacity:.7;
+    opacity:.75;
     font-size:12px;
   }
 </style>
@@ -199,8 +209,9 @@
 
 <!-- CONTENT (hidden until unlock) -->
 <div class="content hidden" id="content">
-  <!-- Prazan tekst - ti upisuješ kasnije -->
-  <div class="textCard" id="message"></div>
+  <div class="textCard">
+    <div id="message"></div><span class="caret" id="caret">|</span>
+  </div>
   <div class="hint">❤️</div>
 </div>
 
@@ -219,9 +230,34 @@
   const vidOv = document.getElementById('vidOv');
 
   const content = document.getElementById('content');
+  const messageEl = document.getElementById('message');
+  const caret = document.getElementById('caret');
+
+  const FULL_TEXT =
+`Lepoto, nemoj nikada da sumnjaš u sebe — i nemoj nikada da sumnjaš da nisi voljena.
+Malo nas je, ali te mnogo volimo. To je valjda smisao života.
+
+Nisam pored tebe, ali kad ti je teško i kad ti fali da te neko ponese preko “blata” — tu sam. Zauvek. ❤️`;
 
   function norm(s){
     return (s || '').toString().trim().toLowerCase().replace(/\s+/g,' ');
+  }
+
+  function typewriter(text, speedMs = 22){
+    messageEl.textContent = '';
+    caret.style.display = 'inline-block';
+
+    let i = 0;
+    const tick = () => {
+      if(i >= text.length){
+        caret.style.display = 'none';
+        return;
+      }
+      messageEl.textContent += text[i];
+      i++;
+      setTimeout(tick, speedMs);
+    };
+    tick();
   }
 
   async function unlock(){
@@ -248,7 +284,7 @@
     videoBg.classList.remove('hidden');
     vidOv.classList.remove('hidden');
 
-    // show text overlay content
+    // show text content
     content.classList.remove('hidden');
 
     // ensure video plays silently
@@ -257,6 +293,9 @@
 
     // start background music (allowed because button click)
     try { await audio.play(); } catch(e) {}
+
+    // show message gradually
+    typewriter(FULL_TEXT, 22);
   }
 
   unlockBtn.addEventListener('click', unlock);
