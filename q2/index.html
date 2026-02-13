@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pre nego što legneš ❤️</title>
+<title>❤️</title>
 
 <style>
   body{
@@ -17,7 +17,7 @@
 
   .hidden{ display:none !important; }
 
-  /* Background (blurovano) */
+  /* Background (blurovano) - VIDI SE ODMAH */
   .bg{
     position:fixed;
     inset:0;
@@ -32,7 +32,7 @@
   .overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.20);
+    background:rgba(0,0,0,0.22);
   }
 
   .wrap{
@@ -45,35 +45,43 @@
   }
 
   .card{
-    width:min(760px,100%);
-    background:rgba(0,0,0,0.22);
+    width:min(860px,100%);
+    background:rgba(0,0,0,0.18);
     border:1px solid rgba(255,255,255,0.22);
     border-radius:22px;
-    padding:22px;
+    padding:18px;
     text-align:center;
   }
 
-  h1{
-    margin:0 0 10px;
-    font-size:22px;
-    letter-spacing:0.2px;
-  }
-
-  .text{
-    margin: 10px auto 0;
-    text-align:left;
-    line-height:1.55;
-    font-size:16px;
-    opacity:.95;
-    white-space:pre-wrap;
+  /* VIDEO + TEXT OVERLAY */
+  .videoWrap{
+    position:relative;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(0,0,0,0.25);
   }
 
   video{
     width:100%;
-    border-radius:18px;
-    margin-top:14px;
+    display:block;
+    border-radius:0;
+  }
+
+  .videoText{
+    position:absolute;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    text-align:left;
+    padding:12px 14px;
+    border-radius:14px;
+    background:rgba(0,0,0,0.35);
     border:1px solid rgba(255,255,255,0.18);
-    background:rgba(0,0,0,0.25);
+    line-height:1.55;
+    font-size:16px;
+    white-space:pre-wrap;
+    backdrop-filter:none;
   }
 
   .actions{
@@ -104,24 +112,30 @@
     border:1px solid rgba(255,255,255,0.5);
   }
 
-  /* UNLOCK SCREEN */
+  /* UNLOCK SCREEN - VIDI SE POZADINA IZA */
   .start{
     position:fixed;
     inset:0;
     display:grid;
     place-items:center;
-    background:#0b0b10;
+    background:transparent; /* ključ */
     z-index:10;
     padding:18px;
   }
 
   .start .box{
     width:min(640px,100%);
-    background:rgba(255,255,255,0.06);
+    background:rgba(0,0,0,0.28);
     border:1px solid rgba(255,255,255,0.18);
     border-radius:20px;
     padding:18px;
     text-align:center;
+  }
+
+  h1{
+    margin:0 0 8px;
+    font-size:20px;
+    letter-spacing:0.2px;
   }
 
   .start p{
@@ -163,22 +177,22 @@
 
 <body>
 
-<!-- sakriveno dok se ne otključa -->
-<div class="bg hidden" id="bg"></div>
-<div class="overlay hidden" id="ov"></div>
+<!-- POZADINA SE VIDI ODMAH (BLUR) -->
+<div class="bg" id="bg"></div>
+<div class="overlay" id="ov"></div>
 
 <audio id="audio" loop preload="auto">
   <source src="./song.mp3" type="audio/mpeg"/>
 </audio>
 
-<!-- UNLOCK -->
+<!-- UNLOCK (preko blurovane slike) -->
 <div class="start" id="start">
   <div class="box">
     <h1>Samo jedna osoba zna odgovor… ❤️</h1>
     <p>Ako si to ti — odgovori.</p>
 
     <div class="question">
-      Najlepsi pogled sa terase na krovu ispred nas more a pored mene najlepsa devojka na svetu je bio u
+      Najlepsi pogled sa terase na krovu ispred nas more a pored mene najbolja devojka na svetu je bio u
     </div>
 
     <input id="answer" type="text" placeholder="upiši odgovor…" autocomplete="off" />
@@ -191,25 +205,24 @@
   </div>
 </div>
 
-<!-- CONTENT -->
+<!-- CONTENT (VIDEO + TEKST PREKO VIDEA) -->
 <div class="wrap hidden" id="wrap">
   <div class="card">
-    <h1>❤️</h1>
 
-    <!-- PRAZAN TEKST (ti ćeš upisati kasnije) -->
-    <div class="text" id="message">
-      
+    <div class="videoWrap">
+      <video id="vid" controls playsinline>
+        <source src="./video.mp4" type="video/mp4" />
+      </video>
+
+      <!-- PRAZNO: TI UPISUJEŠ POSLE -->
+      <div class="videoText" id="message"></div>
     </div>
-
-    <!-- VIDEO -->
-    <video id="vid" controls playsinline>
-      <source src="./video.mp4" type="video/mp4" />
-    </video>
 
     <div class="actions">
       <button class="btn-primary" id="playPause">Pauza</button>
       <button class="btn-ghost" id="restart">Ponovo</button>
     </div>
+
   </div>
 </div>
 
@@ -221,8 +234,6 @@
   const answer = document.getElementById('answer');
   const unlockBtn = document.getElementById('unlockBtn');
 
-  const bg = document.getElementById('bg');
-  const ov = document.getElementById('ov');
   const wrap = document.getElementById('wrap');
 
   const playPause = document.getElementById('playPause');
@@ -239,7 +250,7 @@
   async function unlock(){
     const v = norm(answer.value);
 
-    // tačan odgovor: "Kotoru" (case-insensitive)
+    // tačan odgovor: "Kotoru"
     if(v !== 'kotoru'){
       err.style.display = 'block';
       start.animate(
@@ -251,13 +262,11 @@
 
     err.style.display = 'none';
 
-    // prikaži pozadinu + sadržaj
-    bg.classList.remove('hidden');
-    ov.classList.remove('hidden');
-    wrap.classList.remove('hidden');
-
-    // sakrij unlock
+    // sakrij pitanje
     start.style.display = 'none';
+
+    // prikaži sadržaj (video + tekst overlay)
+    wrap.classList.remove('hidden');
 
     // pusti pesmu (dozvoljeno jer je klik)
     try { await audio.play(); } catch(e) {}
