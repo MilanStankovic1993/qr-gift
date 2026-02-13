@@ -233,31 +233,52 @@
   const messageEl = document.getElementById('message');
   const caret = document.getElementById('caret');
 
-  const FULL_TEXT =
+  const TEXT_1 =
 `Lepoto, nemoj nikada da sumnjaš u sebe i nemoj nikada da sumnjaš da nisi voljena.
 Malo nas je, ali te mnogo volimo. To je valjda smisao života.
 
-Nisam pored tebe, ali kad ti je teško i kad ti fali da te neko ponese preko “blata” tu sam. Zauvek. ❤️`;
+Nisam pored tebe, ali kad ti je teško i kad ti fali da te neko ponese preko “blata” — tu sam. Zauvek. ❤️`;
+
+  const TEXT_2 =
+`Ne plači bre… nisam ovo pravio i pisao da bi plakala,
+nego da te podsetim na to kada ti je teško.
+
+VOLIM TE! ❤️`;
 
   function norm(s){
     return (s || '').toString().trim().toLowerCase().replace(/\s+/g,' ');
   }
 
+  // Typewriter koji vraća Promise kad završi
   function typewriter(text, speedMs = 22){
     messageEl.textContent = '';
     caret.style.display = 'inline-block';
 
-    let i = 0;
-    const tick = () => {
-      if(i >= text.length){
-        caret.style.display = 'none';
-        return;
-      }
-      messageEl.textContent += text[i];
-      i++;
-      setTimeout(tick, speedMs);
-    };
-    tick();
+    return new Promise((resolve) => {
+      let i = 0;
+      const tick = () => {
+        if(i >= text.length){
+          caret.style.display = 'none';
+          resolve();
+          return;
+        }
+        messageEl.textContent += text[i];
+        i++;
+        setTimeout(tick, speedMs);
+      };
+      tick();
+    });
+  }
+
+  async function showTextSequence(){
+    // 1) prvi tekst
+    await typewriter(TEXT_1, 22);
+
+    // 2) ostavi da stoji ~25 sekundi
+    await new Promise(r => setTimeout(r, 25000));
+
+    // 3) drugi tekst (isto “otvaranje”)
+    await typewriter(TEXT_2, 22);
   }
 
   async function unlock(){
@@ -284,18 +305,18 @@ Nisam pored tebe, ali kad ti je teško i kad ti fali da te neko ponese preko “
     videoBg.classList.remove('hidden');
     vidOv.classList.remove('hidden');
 
-    // show text content
+    // show content
     content.classList.remove('hidden');
 
     // ensure video plays silently
     videoBg.muted = true;
     try { await videoBg.play(); } catch(e) {}
 
-    // start background music (allowed because button click)
+    // start background music
     try { await audio.play(); } catch(e) {}
 
-    // show message gradually
-    typewriter(FULL_TEXT, 22);
+    // sequence: text1 -> wait 25s -> text2
+    showTextSequence();
   }
 
   unlockBtn.addEventListener('click', unlock);
