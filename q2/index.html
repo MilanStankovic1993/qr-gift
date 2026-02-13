@@ -17,7 +17,7 @@
 
   .hidden{ display:none !important; }
 
-  /* Background (blurovano) - VIDI SE ODMAH */
+  /* Background image (blurovano) - vidi se dok je pitanje */
   .bg{
     position:fixed;
     inset:0;
@@ -25,68 +25,88 @@
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
-    filter:brightness(0.95) blur(7px);
-    transform:scale(1.03);
+    filter:brightness(0.92) blur(6px);
+    transform:none; /* bez zoom */
+    z-index:0;
   }
 
   .overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.20);
+    background:rgba(0,0,0,0.22);
+    z-index:1;
   }
 
-  /* UNLOCK SCREEN - preko pozadine */
+  /* Fullscreen video background (vidi se tek posle unlock) */
+  .videoBg{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:0;
+  }
+
+  .videoOverlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.22);
+    z-index:1;
+  }
+
+  /* UNLOCK SCREEN */
   .start{
     position:relative;
     min-height:100vh;
     display:grid;
     place-items:center;
     padding:18px;
-    z-index:5; /* iznad pozadine */
+    z-index:5;
   }
 
   .start .box{
     width:min(680px,100%);
-    background:rgba(0,0,0,0.28);
-    border:1px solid rgba(255,255,255,0.18);
-    border-radius:20px;
-    padding:18px;
+    background:rgba(0,0,0,0.55);
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:22px;
+    padding:20px 18px;
     text-align:center;
+    box-shadow:0 18px 60px rgba(0,0,0,0.45);
   }
 
   h1{
-    margin:0 0 8px;
-    font-size:20px;
+    margin:0 0 10px;
+    font-size:21px;
     letter-spacing:0.2px;
   }
 
   .start p{
-    margin:0 0 12px;
-    opacity:.92;
+    margin:0 0 14px;
+    opacity:.95;
     line-height:1.45;
     font-size:15px;
   }
 
   .question{
-    margin:10px 0 12px;
-    font-size:15px;
-    line-height:1.45;
-    opacity:.95;
+    margin:10px 0 14px;
+    font-size:16px;
+    line-height:1.55;
+    opacity:1;
   }
 
   input[type="text"]{
     width:min(360px, 92vw);
-    padding:10px 12px;
+    padding:11px 12px;
     border-radius:14px;
-    border:1px solid rgba(255,255,255,0.22);
-    background:rgba(0,0,0,0.25);
+    border:1px solid rgba(255,255,255,0.26);
+    background:rgba(0,0,0,0.35);
     color:#fff;
     outline:none;
     font-size:16px;
     text-align:center;
   }
 
-  input::placeholder{ color:rgba(255,255,255,0.55); }
+  input::placeholder{ color:rgba(255,255,255,0.65); }
 
   .err{
     margin-top:10px;
@@ -109,83 +129,55 @@
     color:#000;
   }
 
-  .btn-ghost{
-    background:transparent;
-    color:#fff;
-    border:1px solid rgba(255,255,255,0.5);
-  }
-
-  /* CONTENT (VIDEO + TEXT) - sakriven na startu */
-  .wrap{
+  /* CONTENT after unlock (text over video) */
+  .content{
     position:relative;
     min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:grid;
+    place-items:center;
     padding:28px 18px;
     z-index:5;
   }
 
-  .card{
+  .textCard{
     width:min(860px,100%);
-    background:rgba(0,0,0,0.18);
+    background:rgba(0,0,0,0.25);
     border:1px solid rgba(255,255,255,0.22);
     border-radius:22px;
     padding:18px;
-    text-align:center;
-  }
-
-  .videoWrap{
-    position:relative;
-    border-radius:18px;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,0.18);
-    background:rgba(0,0,0,0.25);
-  }
-
-  video{
-    width:100%;
-    display:block;
-  }
-
-  /* TEKST PREKO VIDEA (prazan za sada) */
-  .videoText{
-    position:absolute;
-    left:12px;
-    right:12px;
-    bottom:12px;
     text-align:left;
-    padding:12px 14px;
-    border-radius:14px;
-    background:rgba(0,0,0,0.35);
-    border:1px solid rgba(255,255,255,0.18);
-    line-height:1.55;
+    line-height:1.6;
     font-size:16px;
     white-space:pre-wrap;
   }
 
-  .actions{
-    display:flex;
-    gap:12px;
-    justify-content:center;
-    margin-top:14px;
-    flex-wrap:wrap;
+  .hint{
+    margin-top:10px;
+    text-align:center;
+    opacity:.7;
+    font-size:12px;
   }
 </style>
 </head>
 
 <body>
 
-<!-- Pozadina se vidi ODMAH -->
-<div class="bg"></div>
-<div class="overlay"></div>
+<!-- IMAGE BG (visible at start) -->
+<div class="bg" id="imgBg"></div>
+<div class="overlay" id="imgOv"></div>
 
-<!-- Pesma NE kreće dok se ne otključa -->
+<!-- VIDEO BG (hidden at start) -->
+<video id="videoBg" class="videoBg hidden" autoplay muted loop playsinline preload="auto">
+  <source src="./video.mp4" type="video/mp4" />
+</video>
+<div class="videoOverlay hidden" id="vidOv"></div>
+
+<!-- MUSIC (starts only after unlock click) -->
 <audio id="audio" loop preload="auto">
   <source src="./song.mp3" type="audio/mpeg"/>
 </audio>
 
-<!-- UNLOCK (vidljivo odmah) -->
+<!-- UNLOCK -->
 <div class="start" id="start">
   <div class="box">
     <h1>Samo jedna osoba zna odgovor… ❤️</h1>
@@ -205,24 +197,11 @@
   </div>
 </div>
 
-<!-- CONTENT (sakriven dok ne pogodi) -->
-<div class="wrap hidden" id="wrap">
-  <div class="card">
-
-    <div class="videoWrap">
-      <video id="vid" controls playsinline>
-        <source src="./video.mp4" type="video/mp4" />
-      </video>
-
-      <div class="videoText" id="message"></div>
-    </div>
-
-    <div class="actions">
-      <button class="btn-primary" id="playPause">Pauza</button>
-      <button class="btn-ghost" id="restart">Ponovo</button>
-    </div>
-
-  </div>
+<!-- CONTENT (hidden until unlock) -->
+<div class="content hidden" id="content">
+  <!-- Prazan tekst - ti upisuješ kasnije -->
+  <div class="textCard" id="message"></div>
+  <div class="hint">❤️</div>
 </div>
 
 <script>
@@ -233,17 +212,16 @@
   const answer = document.getElementById('answer');
   const unlockBtn = document.getElementById('unlockBtn');
 
-  const wrap = document.getElementById('wrap');
+  const imgBg = document.getElementById('imgBg');
+  const imgOv = document.getElementById('imgOv');
 
-  const playPause = document.getElementById('playPause');
-  const restart = document.getElementById('restart');
+  const videoBg = document.getElementById('videoBg');
+  const vidOv = document.getElementById('vidOv');
+
+  const content = document.getElementById('content');
 
   function norm(s){
-    return (s || '')
-      .toString()
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g,' ');
+    return (s || '').toString().trim().toLowerCase().replace(/\s+/g,' ');
   }
 
   async function unlock(){
@@ -260,35 +238,29 @@
 
     err.style.display = 'none';
 
-    // sakrij pitanje
+    // hide question UI
     start.classList.add('hidden');
 
-    // prikaži video + tekst
-    wrap.classList.remove('hidden');
+    // switch backgrounds: hide image, show video
+    imgBg.classList.add('hidden');
+    imgOv.classList.add('hidden');
 
-    // pusti pesmu (dozvoljeno jer je klik)
+    videoBg.classList.remove('hidden');
+    vidOv.classList.remove('hidden');
+
+    // show text overlay content
+    content.classList.remove('hidden');
+
+    // ensure video plays silently
+    videoBg.muted = true;
+    try { await videoBg.play(); } catch(e) {}
+
+    // start background music (allowed because button click)
     try { await audio.play(); } catch(e) {}
-    playPause.textContent = 'Pauza';
   }
 
   unlockBtn.addEventListener('click', unlock);
   answer.addEventListener('keydown', (e) => { if(e.key === 'Enter') unlock(); });
-
-  playPause.addEventListener('click', async () => {
-    if(audio.paused){
-      try { await audio.play(); } catch(e) {}
-      playPause.textContent = 'Pauza';
-    } else {
-      audio.pause();
-      playPause.textContent = 'Pusti';
-    }
-  });
-
-  restart.addEventListener('click', async () => {
-    audio.currentTime = 0;
-    try { await audio.play(); } catch(e) {}
-    playPause.textContent = 'Pauza';
-  });
 </script>
 
 </body>
