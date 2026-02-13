@@ -25,106 +25,28 @@
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
-    filter:brightness(0.95) blur(6px);
+    filter:brightness(0.95) blur(7px);
     transform:scale(1.03);
   }
 
   .overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.22);
+    background:rgba(0,0,0,0.20);
   }
 
-  .wrap{
+  /* UNLOCK SCREEN - preko pozadine */
+  .start{
     position:relative;
     min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:28px 18px;
-  }
-
-  .card{
-    width:min(860px,100%);
-    background:rgba(0,0,0,0.18);
-    border:1px solid rgba(255,255,255,0.22);
-    border-radius:22px;
-    padding:18px;
-    text-align:center;
-  }
-
-  /* VIDEO + TEXT OVERLAY */
-  .videoWrap{
-    position:relative;
-    border-radius:18px;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,0.18);
-    background:rgba(0,0,0,0.25);
-  }
-
-  video{
-    width:100%;
-    display:block;
-    border-radius:0;
-  }
-
-  .videoText{
-    position:absolute;
-    left:12px;
-    right:12px;
-    bottom:12px;
-    text-align:left;
-    padding:12px 14px;
-    border-radius:14px;
-    background:rgba(0,0,0,0.35);
-    border:1px solid rgba(255,255,255,0.18);
-    line-height:1.55;
-    font-size:16px;
-    white-space:pre-wrap;
-    backdrop-filter:none;
-  }
-
-  .actions{
-    display:flex;
-    gap:12px;
-    justify-content:center;
-    margin-top:14px;
-    flex-wrap:wrap;
-  }
-
-  button{
-    border:none;
-    cursor:pointer;
-    border-radius:999px;
-    padding:12px 16px;
-    font-weight:800;
-    font-size:16px;
-  }
-
-  .btn-primary{
-    background:#fff;
-    color:#000;
-  }
-
-  .btn-ghost{
-    background:transparent;
-    color:#fff;
-    border:1px solid rgba(255,255,255,0.5);
-  }
-
-  /* UNLOCK SCREEN - VIDI SE POZADINA IZA */
-  .start{
-    position:fixed;
-    inset:0;
     display:grid;
     place-items:center;
-    background:transparent; /* ključ */
-    z-index:10;
     padding:18px;
+    z-index:5; /* iznad pozadine */
   }
 
   .start .box{
-    width:min(640px,100%);
+    width:min(680px,100%);
     background:rgba(0,0,0,0.28);
     border:1px solid rgba(255,255,255,0.18);
     border-radius:20px;
@@ -153,7 +75,7 @@
   }
 
   input[type="text"]{
-    width:min(340px, 92vw);
+    width:min(360px, 92vw);
     padding:10px 12px;
     border-radius:14px;
     border:1px solid rgba(255,255,255,0.22);
@@ -172,27 +94,105 @@
     color:rgba(255,170,170,0.95);
     display:none;
   }
+
+  button{
+    border:none;
+    cursor:pointer;
+    border-radius:999px;
+    padding:12px 16px;
+    font-weight:800;
+    font-size:16px;
+  }
+
+  .btn-primary{
+    background:#fff;
+    color:#000;
+  }
+
+  .btn-ghost{
+    background:transparent;
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.5);
+  }
+
+  /* CONTENT (VIDEO + TEXT) - sakriven na startu */
+  .wrap{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 18px;
+    z-index:5;
+  }
+
+  .card{
+    width:min(860px,100%);
+    background:rgba(0,0,0,0.18);
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:22px;
+    padding:18px;
+    text-align:center;
+  }
+
+  .videoWrap{
+    position:relative;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(0,0,0,0.25);
+  }
+
+  video{
+    width:100%;
+    display:block;
+  }
+
+  /* TEKST PREKO VIDEA (prazan za sada) */
+  .videoText{
+    position:absolute;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    text-align:left;
+    padding:12px 14px;
+    border-radius:14px;
+    background:rgba(0,0,0,0.35);
+    border:1px solid rgba(255,255,255,0.18);
+    line-height:1.55;
+    font-size:16px;
+    white-space:pre-wrap;
+  }
+
+  .actions{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
 </style>
 </head>
 
 <body>
 
-<!-- POZADINA SE VIDI ODMAH (BLUR) -->
-<div class="bg" id="bg"></div>
-<div class="overlay" id="ov"></div>
+<!-- Pozadina se vidi ODMAH -->
+<div class="bg"></div>
+<div class="overlay"></div>
 
+<!-- Pesma NE kreće dok se ne otključa -->
 <audio id="audio" loop preload="auto">
   <source src="./song.mp3" type="audio/mpeg"/>
 </audio>
 
-<!-- UNLOCK (preko blurovane slike) -->
+<!-- UNLOCK (vidljivo odmah) -->
 <div class="start" id="start">
   <div class="box">
     <h1>Samo jedna osoba zna odgovor… ❤️</h1>
     <p>Ako si to ti — odgovori.</p>
 
     <div class="question">
-      Najlepsi pogled sa terase na krovu ispred nas more a pored mene najbolja devojka na svetu je bio u
+      Najlepsi pogled sa terase na krovu ispred nas more a pored mene najlepsa devojka na svetu je bio u
     </div>
 
     <input id="answer" type="text" placeholder="upiši odgovor…" autocomplete="off" />
@@ -205,7 +205,7 @@
   </div>
 </div>
 
-<!-- CONTENT (VIDEO + TEKST PREKO VIDEA) -->
+<!-- CONTENT (sakriven dok ne pogodi) -->
 <div class="wrap hidden" id="wrap">
   <div class="card">
 
@@ -214,7 +214,6 @@
         <source src="./video.mp4" type="video/mp4" />
       </video>
 
-      <!-- PRAZNO: TI UPISUJEŠ POSLE -->
       <div class="videoText" id="message"></div>
     </div>
 
@@ -250,7 +249,6 @@
   async function unlock(){
     const v = norm(answer.value);
 
-    // tačan odgovor: "Kotoru"
     if(v !== 'kotoru'){
       err.style.display = 'block';
       start.animate(
@@ -263,9 +261,9 @@
     err.style.display = 'none';
 
     // sakrij pitanje
-    start.style.display = 'none';
+    start.classList.add('hidden');
 
-    // prikaži sadržaj (video + tekst overlay)
+    // prikaži video + tekst
     wrap.classList.remove('hidden');
 
     // pusti pesmu (dozvoljeno jer je klik)
@@ -274,12 +272,8 @@
   }
 
   unlockBtn.addEventListener('click', unlock);
+  answer.addEventListener('keydown', (e) => { if(e.key === 'Enter') unlock(); });
 
-  answer.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') unlock();
-  });
-
-  // Controls
   playPause.addEventListener('click', async () => {
     if(audio.paused){
       try { await audio.play(); } catch(e) {}
