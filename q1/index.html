@@ -22,14 +22,14 @@ body{
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
-  filter:brightness(1); /* skroz bez zatamnjivanja */
+  filter:brightness(1);
 }
 
-/* Minimal overlay (samo blago) */
+/* Minimal overlay */
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.15); /* mnogo transparentnije */
+  background:rgba(0,0,0,0.15);
 }
 
 .wrap{
@@ -41,10 +41,10 @@ body{
   padding:28px 18px;
 }
 
-/* Transparentna kartica */
+/* Transparent card */
 .card{
   width:min(720px,100%);
-  background:rgba(0,0,0,0.18); /* skoro providno */
+  background:rgba(0,0,0,0.18);
   border:1px solid rgba(255,255,255,0.25);
   border-radius:22px;
   padding:22px;
@@ -110,7 +110,7 @@ button{
   border:1px solid rgba(255,255,255,0.5);
 }
 
-/* START SCREEN */
+/* UNLOCK SCREEN */
 .start{
   position:fixed;
   inset:0;
@@ -118,15 +118,79 @@ button{
   place-items:center;
   background:rgba(0,0,0,0.35);
   z-index:10;
+  padding:18px;
 }
 
 .start .box{
+  width:min(560px,100%);
   background:rgba(0,0,0,0.25);
+  border:1px solid rgba(255,255,255,0.22);
   border-radius:20px;
-  padding:22px;
+  padding:18px;
+  text-align:left;
+}
+
+.start h2{
+  margin:0 0 8px;
+  font-size:20px;
   text-align:center;
 }
 
+.start p{
+  margin:0 0 12px;
+  opacity:.95;
+  line-height:1.45;
+  text-align:center;
+}
+
+.formline{
+  margin-top:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.formline span{
+  opacity:.95;
+  font-size:15px;
+}
+
+input[type="text"]{
+  width:min(220px, 80vw);
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.25);
+  background:rgba(0,0,0,0.25);
+  color:#fff;
+  outline:none;
+  font-size:16px;
+}
+
+input::placeholder{
+  color:rgba(255,255,255,0.55);
+}
+
+.err{
+  margin-top:10px;
+  font-size:13px;
+  text-align:center;
+  color:rgba(255,180,180,0.95);
+  display:none;
+}
+
+.hint{
+  margin-top:10px;
+  font-size:12px;
+  text-align:center;
+  opacity:.7;
+}
+
+.hidden{
+  display:none !important;
+}
 </style>
 </head>
 
@@ -138,16 +202,33 @@ button{
   <source src="./song.mp3" type="audio/mpeg"/>
 </audio>
 
+<!-- UNLOCK -->
 <div class="start" id="start">
   <div class="box">
-    <h2>Laku noccc ❤️</h2>
-    <button class="btn-primary" id="startBtn">Pusti pesmu 🎵</button>
+    <h2>Ako znaš odgovor… ❤️</h2>
+    <p>onda si ti jedina osoba koja treba da vidi poruku.</p>
+
+    <div class="formline">
+      <span>Ona kaže:</span>
+      <input id="a1" type="text" placeholder="(upiši ovde)" autocomplete="off" />
+    </div>
+
+    <div class="formline">
+      <span>Ja kažem: Ne ne, hvala tebi što</span>
+      <input id="a2" type="text" placeholder="(upiši ovde)" autocomplete="off" />
+    </div>
+
+    <div class="formline" style="margin-top:14px;">
+      <button class="btn-primary" id="unlockBtn">Otkrij poruku 🔓</button>
+    </div>
+
+    <div class="err" id="err">Nije to 🙂 probaj opet.</div>
+    <div class="hint">Mali hint: dve kratke reči koje često kažeš.</div>
   </div>
 </div>
 
 <div class="wrap">
-  <div class="card">
-
+  <div class="card" id="content" aria-hidden="true">
     <div class="chat">
       <div class="bubble me">Lepotoooo… danas si bila najlepsaa</div>
       <div class="bubble her">Hvalaaa</div>
@@ -172,39 +253,77 @@ button{
       <button class="btn-primary" id="playPause">Pauza</button>
       <button class="btn-ghost" id="restart">Ponovo</button>
     </div>
-
   </div>
 </div>
 
 <script>
-const audio=document.getElementById('audio');
-const start=document.getElementById('start');
-const startBtn=document.getElementById('startBtn');
-const playPause=document.getElementById('playPause');
-const restart=document.getElementById('restart');
+const audio = document.getElementById('audio');
 
-async function safePlay(){
-  try{
-    await audio.play();
-    start.style.display='none';
-    playPause.textContent='Pauza';
-  }catch(e){}
+const start   = document.getElementById('start');
+const unlockBtn = document.getElementById('unlockBtn');
+const err     = document.getElementById('err');
+
+const a1 = document.getElementById('a1');
+const a2 = document.getElementById('a2');
+
+const playPause = document.getElementById('playPause');
+const restart   = document.getElementById('restart');
+
+function norm(s){
+  return (s || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g,' ');
 }
 
-startBtn.addEventListener('click',safePlay);
+async function unlock(){
+  const v1 = norm(a1.value);
+  const v2 = norm(a2.value);
 
-playPause.addEventListener('click',async()=>{
+  const ok1 = (v1 === 'hvala');
+  const ok2 = (v2 === 'postojis');
+
+  if(!ok1 || !ok2){
+    err.style.display = 'block';
+    // mali shake efekat bez CSS komplikacije
+    start.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}], {duration:220});
+    return;
+  }
+
+  err.style.display = 'none';
+  start.style.display = 'none';
+
+  // krene pesma (biće dozvoljeno jer je user kliknuo)
+  try { await audio.play(); } catch (e) {}
+
+  playPause.textContent = 'Pauza';
+}
+
+unlockBtn.addEventListener('click', unlock);
+
+// Enter key support
+[a1, a2].forEach(el => {
+  el.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') unlock();
+  });
+});
+
+// Controls
+playPause.addEventListener('click', async () => {
   if(audio.paused){
-    await safePlay();
-  }else{
+    try { await audio.play(); } catch(e) {}
+    playPause.textContent = 'Pauza';
+  } else {
     audio.pause();
-    playPause.textContent='Pusti';
+    playPause.textContent = 'Pusti';
   }
 });
 
-restart.addEventListener('click',async()=>{
-  audio.currentTime=0;
-  await safePlay();
+restart.addEventListener('click', async () => {
+  audio.currentTime = 0;
+  try { await audio.play(); } catch(e) {}
+  playPause.textContent = 'Pauza';
 });
 </script>
 
